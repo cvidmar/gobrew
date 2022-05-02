@@ -1,0 +1,28 @@
+#!/bin/bash
+if [ "$#" = 1 ]; then
+	if [ "$1" = "help" ]; then
+	    echo "usage: gvm [GO_VERSION|help]"
+	    echo "note: will switch Homebrew's 'go' to the highest version matching" 
+	    echo "      GO_VERSION at the beginning of the version string. For "
+	    echo "      example 1.17 will switch the current go binary to 1.17.X"
+	    echo "      with maximum X available. Not passing GO_VERSION will switch"
+	    echo "      to the highest version available."
+	    echo "      To install another go version without removing the older ones:"
+	    echo "      export HOMEBREW_NO_INSTALL_CLEANUP=1; brew install go@VERSION"
+	    exit
+	else 
+		allVer=$(ls -l /opt/homebrew/Cellar/go |awk '{print $9}')
+		reqVer=$(ls -l /opt/homebrew/Cellar/go |grep $1 |awk '{print $9}' |tail -n 1)
+		if [ "$reqVer" = "" ]; then 
+			echo "Version not found. Available versions: $allVer"
+			exit
+		fi
+    fi 
+fi
+if [ "$#" = 0 ]; then
+	reqVer=$(ls -l /opt/homebrew/Cellar/go |awk '{print $9}' |tail -n 1)
+fi
+echo "Switching to $reqVer"
+lnDest="/opt/homebrew/Cellar/go/$reqVer/bin/go"
+sudo rm /opt/homebrew/bin/go
+sudo ln -s $lnDest /opt/homebrew/bin/go
