@@ -10,6 +10,9 @@ Install multiple versions of go with
 ```
 export HOMEBREW_NO_INSTALL_CLEANUP=1; brew install go@VERSION
 ```
+Make sure that variable is in your shell's rc file or brew will wipe out old
+versions next time.
+
 ## Run
 
 See screenshot below:
