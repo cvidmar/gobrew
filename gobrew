@@ -1,4 +1,10 @@
 #!/bin/bash
+if [ "$HOMEBREW_CELLAR" = "" ]; then 
+	echo "HOMEBREW_CELLAR not set."
+	exit
+fi
+allVer=$(ls -l $HOMEBREW_CELLAR/go $HOMEBREW_CELLAR/go@* |awk '{print $9}' |grep "^[0-9]\." |sort)
+allRoots=$(find $HOMEBREW_CELLAR |grep "libexec" |grep "${HOMEBREW_CELLAR}/go" | awk '{split($0,a,"libexec"); print a[1]}' |uniq)
 if [ "$#" = 1 ]; then
 	if [ "$1" = "help" ]; then
 	    echo "usage: gvm [GO_VERSION|help]"
@@ -11,18 +17,17 @@ if [ "$#" = 1 ]; then
 	    echo "      export HOMEBREW_NO_INSTALL_CLEANUP=1; brew install go@VERSION"
 	    exit
 	else 
-		allVer=$(ls -l /opt/homebrew/Cellar/go |awk '{print $9}')
-		reqVer=$(ls -l /opt/homebrew/Cellar/go |grep $1 |awk '{print $9}' |tail -n 1)
+		reqVer=$(echo "$allVer" |grep ^$1 |tail -n 1)
 		if [ "$reqVer" = "" ]; then 
-			echo "Version not found. Available versions: $allVer"
+			echo "Version not found. Available versions: "$allVer
 			exit
 		fi
     fi 
 fi
 if [ "$#" = 0 ]; then
-	reqVer=$(ls -l /opt/homebrew/Cellar/go |awk '{print $9}' |tail -n 1)
+	reqVer=$(echo "$allVer" |tail -n 1)
 fi
 echo "Switching to $reqVer"
-lnDest="/opt/homebrew/Cellar/go/$reqVer/bin/go"
+lnDest=$(echo "$allRoots" |grep $reqVer)bin/go
 sudo rm /opt/homebrew/bin/go
 sudo ln -s $lnDest /opt/homebrew/bin/go
